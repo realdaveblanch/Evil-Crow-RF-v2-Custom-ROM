@@ -40,7 +40,7 @@ const int wifi_channel = 11; //Enter your preferred Wi-Fi Channel
 
 // HTML and CSS style
 
-const String HTML_CSS_STYLING = "<head><meta charset='UTF-8'><title>totona</title><link href='style.css' rel='stylesheet'><meta name='viewport' content='width=device-width, initial-scale=1.0'><script src='lib.js'></script></head>";
+const String HTML_CSS_STYLING = "<head><meta charset='UTF-8'><title>Totona</title><link href='style.css' rel='stylesheet'><meta name='viewport' content='width=device-width, initial-scale=1.0'><script src='lib.js'></script></head>";
 
 //Pushbutton Pins
 int push1 = 34;
@@ -597,13 +597,14 @@ void setup() {
 
   Serial.begin(115200);
   power_management();
+  sdspi.begin(18, 19, 23, 22);
+  SD.begin(22, sdspi);
 
-  LittleFS.begin(formatOnFail);
 
-  readConfigWiFi(LittleFS,"/configwifi.txt");
+  readConfigWiFi(SD,"/configwifi.txt");
   ssid_new = tmp_config1;
   password_new = tmp_config2;
-  readConfigWiFi(LittleFS,"/configmode.txt");
+  readConfigWiFi(SD,"/configmode.txt");
   tmp_channel_new = tmp_config1;
   tmp_mode_new = tmp_config2;
   channel_new = tmp_channel_new.toInt();
@@ -627,8 +628,7 @@ void setup() {
   
   delay(2000);
   
-  sdspi.begin(18, 19, 23, 22);
-  SD.begin(22, sdspi);
+
   pinMode(push1, INPUT);
   pinMode(push2, INPUT);
 
@@ -1287,8 +1287,8 @@ controlserver.on("/getRawData", HTTP_GET, [](AsyncWebServerRequest *request){
   });
 
 
-   controlserver.on("/jquery-3.4.1.js", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(SD, "/HTML/jquery-3.4.1.js", "text/javascript");
+   controlserver.on("/jquery-3.7.1.min.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(SD, "/HTML/jquery-3.7.1.min.js", "text/javascript");
   });
 
    controlserver.on("/bootstrap.bundle.min.js", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -1310,12 +1310,12 @@ controlserver.on("/getRawData", HTTP_GET, [](AsyncWebServerRequest *request){
     String mode_value = request->arg("mode");
     
     if (request->hasArg("configmodule")) {
-      deleteFile(LittleFS, "/configwifi.txt");
-      deleteFile(LittleFS, "/configmode.txt");
-      writeConfigWiFi(LittleFS, "/configwifi.txt", ssid_value);
-      writeConfigWiFi(LittleFS, "/configwifi.txt", password_value);
-      writeConfigWiFi(LittleFS, "/configmode.txt", channel_value);
-      writeConfigWiFi(LittleFS, "/configmode.txt", mode_value);
+      deleteFile(SD, "/configwifi.txt");
+      deleteFile(SD, "/configmode.txt");
+      writeConfigWiFi(SD, "/configwifi.txt", ssid_value);
+      writeConfigWiFi(SD, "/configwifi.txt", password_value);
+      writeConfigWiFi(SD, "/configmode.txt", channel_value);
+      writeConfigWiFi(SD, "/configmode.txt", mode_value);
       WiFi.disconnect();
       force_reset();
     }
@@ -1323,8 +1323,8 @@ controlserver.on("/getRawData", HTTP_GET, [](AsyncWebServerRequest *request){
 
   controlserver.on("/deletewificonfig", HTTP_POST, [](AsyncWebServerRequest *request) {
     if (request->hasArg("configmodule")) {
-      deleteFile(LittleFS, "/configwifi.txt");
-      deleteFile(LittleFS, "/configmode.txt");
+      deleteFile(SD, "/configwifi.txt");
+      deleteFile(SD, "/configmode.txt");
       force_reset();
     }
   });
