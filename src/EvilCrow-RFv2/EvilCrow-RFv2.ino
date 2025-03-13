@@ -567,7 +567,7 @@ void go_deep_sleep(){
   ELECHOUSE_cc1101.goSleep();
   ELECHOUSE_cc1101.setModul(1);
   ELECHOUSE_cc1101.goSleep();
-  led_blink(5,250);
+  led_blink(5,100);
   esp_deep_sleep_start();
 }
 
@@ -581,10 +581,10 @@ void led_blink(int blinkrep,int blinktimer){
 }
 
 void poweron_blink(){
-  if (millis()-Blinktime > 10000){
+  if (millis()-Blinktime > 500){
     digitalWrite(led, LOW);
   }
-  if (millis()-Blinktime > 10100){
+  if (millis()-Blinktime > 500){
     digitalWrite(led, HIGH);
     Blinktime = millis();
   }
